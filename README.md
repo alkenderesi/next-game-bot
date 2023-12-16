@@ -1,2 +1,2 @@
 # game-vote-bot
-Discord bot for voting on games :video_game:
+Discord bot for voting on the next game :video_game:
