@@ -1,7 +1,8 @@
-import discord
+"""Main module that runs the bot."""
 
-with open("config/token.txt", "r") as token_file:
-    TOKEN = token_file.read().strip()
+import discord
+from bot import message_handler
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -11,19 +12,18 @@ client = discord.Client(intents=intents)
 
 @client.event
 async def on_ready():
-    print(f"We have logged in as {client.user}")
+    print(f"Logged in as {client.user}")
 
 
 @client.event
 async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith("$hello"):
-        await message.channel.send("Hello!")
+    message_handler(message, client)
 
 
 def main():
+    with open("config/token.txt", "r") as token_file:
+        TOKEN = token_file.read().strip()
+
     client.run(TOKEN)
 
 
