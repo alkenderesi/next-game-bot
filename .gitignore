@@ -161,3 +161,6 @@ cython_debug/
 
 # Discord token
 config/token.txt
+
+# Game list
+config/games.json
