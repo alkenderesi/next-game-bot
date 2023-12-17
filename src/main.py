@@ -17,7 +17,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    message_handler(message, client)
+    await message_handler(message, client)
 
 
 def main():
