@@ -1,3 +1,3 @@
 * ```
-  {choice}
+  {option}
   ```

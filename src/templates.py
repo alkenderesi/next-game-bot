@@ -1,4 +1,4 @@
-"""Message template module."""
+"""Message templating module."""
 
 import os
 import json
@@ -9,11 +9,9 @@ def read_templates(template_dir: str = "templates") -> dict[str, Union[str, dict
     """
     Reads in all templates in the templates directory.
 
-    For markdown templates, the file name is used as the key (`str`) and the file contents
-    as the value (`str`).
+    For markdown templates, the filename is used as the key (`str`) and the file contents as the value (`str`).
 
-    For JSON templates, the file name is used as the key (`str`) and the JSON object as
-    the value (`dict`).
+    For JSON templates, the filename is used as the key (`str`) and the JSON object as the value (`dict`).
 
     Args:
         * template_dir (`str`): The directory containing the templates.
@@ -29,11 +27,11 @@ def read_templates(template_dir: str = "templates") -> dict[str, Union[str, dict
 
     for file in markdown_files:
         with open(f"{template_dir}/{file}") as f:
-            templates[file] = f.read().strip()
+            templates[file[: -len(".md")]] = f.read().strip()
 
     for file in json_files:
         with open(f"{template_dir}/{file}") as f:
-            templates[file] = json.load(f)
+            templates[file[: -len(".json")]] = json.load(f)
 
     return templates
 
@@ -41,32 +39,31 @@ def read_templates(template_dir: str = "templates") -> dict[str, Union[str, dict
 TEMPLATES = read_templates()
 
 
-def create_choices_message(games: list[str]) -> str:
+def create_options_message(options: list[str]) -> str:
     """
-    Creates a message containing the game choices.
+    Creates a message containing the list of options.
 
     Args:
-        * games (`list[str]`): The game choices.
+        * options (`list[str]`): The options to vote on.
 
     Returns:
-        * `str`: The formatted message containing the game choices.
+        * `str`: The formatted message containing the list of options.
     """
 
-    return TEMPLATES["choices.md"].format(
-        choices="\n".join(
-            [TEMPLATES["choice.md"].format(choice=game) for game in games]
+    return TEMPLATES["options"].format(
+        options="\n".join(
+            [TEMPLATES["option"].format(option=option) for option in options]
         )
     )
 
 
-def create_status_message(waiting_usernames: list[str], ok_usernames: list[str]) -> str:
+def create_status_message(ok_usernames: list[str], waiting_usernames: list[str]) -> str:
     """
     Creates a message containing the status of the users.
 
     Args:
-        * waiting_usernames (`list[str]`): The usernames of the users who have not
-        responded.
         * ok_usernames (`list[str]`): The usernames of the users who have responded.
+        * waiting_usernames (`list[str]`): The usernames of the users who have not responded.
 
     Returns:
         * `str`: The formatted message containing the status of the users.
@@ -78,8 +75,8 @@ def create_status_message(waiting_usernames: list[str], ok_usernames: list[str])
         status += (
             "\n".join(
                 [
-                    TEMPLATES["user_status.md"].format(
-                        status_emoji=TEMPLATES["emojis.json"]["ok"], username=username
+                    TEMPLATES["user_status"].format(
+                        status_emoji=TEMPLATES["emojis"]["ok"], username=username
                     )
                     for username in ok_usernames
                 ]
@@ -90,15 +87,59 @@ def create_status_message(waiting_usernames: list[str], ok_usernames: list[str])
     if waiting_usernames:
         status += "\n".join(
             [
-                TEMPLATES["user_status.md"].format(
-                    status_emoji=TEMPLATES["emojis.json"]["waiting"], username=username
+                TEMPLATES["user_status"].format(
+                    status_emoji=TEMPLATES["emojis"]["waiting"], username=username
                 )
                 for username in waiting_usernames
             ]
         )
 
-    return TEMPLATES["status.md"].format(
+    return TEMPLATES["status"].format(
         user_count=len(waiting_usernames) + len(ok_usernames),
         response_count=len(ok_usernames),
         status=status,
+    )
+
+
+def create_feedback_message(confirmed_options: list[str]) -> str:
+    """
+    Creates a message containing the confirmed options.
+
+    Args:
+        * confirmed_options (`list[str]`): The confirmed options.
+
+    Returns:
+        * `str`: The formatted message containing the list of confirmed options.
+    """
+
+    feedback = "\n".join(
+        [f"{i+1}. {option}" for i, option in enumerate(confirmed_options)]
+    )
+
+    return TEMPLATES["feedback"].format(
+        feedback_count=len(confirmed_options), feedback=feedback
+    )
+
+
+def create_results_message(results: dict[str, float]) -> str:
+    """
+    Creates a message containing the results of the poll.
+
+    Args:
+        * results (`dict[str, float]`): The results of the poll.
+
+    Returns:
+        * `str`: The formatted message containing the results of the poll.
+    """
+
+    return "\n".join(
+        [
+            TEMPLATES["result"].format(
+                score=f"{score:.2f}".rjust(5),
+                option=option,
+            )
+            for option, score in sorted(
+                results.items(), key=lambda item: item[1], reverse=True
+            )
+        ]
     )
