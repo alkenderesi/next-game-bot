@@ -44,7 +44,13 @@ class NextGameBot:
 
         # Handle private commands while a game poll is active
         elif message.channel.type.name == "private" and self.game_poll.is_active():
-            pass
+            # Add message to the responses if the message is from a participant
+            if message.author in self.game_poll.participants:
+                print(f"Response received from {message.author.name}")
+                self.game_poll.add_response(message)
+                await self.update_status_message()
+
+                # TODO: Send the final results if all participants have responded
 
     async def message_participants(self) -> None:
         """
