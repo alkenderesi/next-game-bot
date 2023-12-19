@@ -1,7 +1,7 @@
 """Main module that runs the bot."""
 
 import discord
-from bot import message_handler
+import bot
 
 
 intents = discord.Intents.default()
@@ -17,7 +17,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    await message_handler(message, client)
+    await bot.message_handler(message, client)
 
 
 def main():

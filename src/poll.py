@@ -15,7 +15,7 @@ class GamePoll:
         with open("config/games.txt", "r") as game_config:
             self.games: list[str] = game_config.read().splitlines()
         self.participants: set[discord.Member] = set()
-        self.responses: list[list[str]] = []
+        self.responses: list[discord.Message] = []
 
     def is_active(self) -> bool:
         """Returns whether a poll is active."""
@@ -40,7 +40,8 @@ class GamePoll:
             * response (`discord.Message`): The response to add.
         """
 
-        pass
+        self.participants.remove(response.author)
+        self.responses.append(response)
 
     def get_results(self) -> dict[str, float]:
         """Returns the results of the poll."""
