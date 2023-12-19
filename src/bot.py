@@ -35,7 +35,7 @@ class NextGameBot:
         if message.channel.type.name == "text" and message.content.startswith(
             "!nextgame"
         ):
-            # Start a poll if one is not active and command has mentions
+            # Start a poll if one is not active and message has mentions
             if not self.game_poll.is_active() and message.mentions:
                 print("Starting poll")
                 self.game_poll.add_participants(message.mentions)
@@ -63,7 +63,7 @@ class NextGameBot:
 
         # Send the message to all participants
         for participant in self.game_poll.participants:
-            print(f"Sending message to {participant.name}")
+            print(f"Sending choices to {participant.name}")
             self.private_messages.append(await participant.send(message_content))
 
     async def update_status_message(self, channel: discord.TextChannel = None) -> None:
@@ -92,9 +92,10 @@ class NextGameBot:
             ],
         )
 
-        # Set the channel to send the message to
-        channel = channel or self.status_message.channel
-
-        # Update the status message
-        print("Updating status message")
-        self.status_message = await channel.send(message_content)
+        # Send or update the status message
+        if channel:
+            print("Sending initial status message")
+            self.status_message = await channel.send(message_content)
+        else:
+            print("Updating status message")
+            await self.status_message.edit(content=message_content)
