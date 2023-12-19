@@ -4,12 +4,7 @@ import discord
 
 
 class GamePoll:
-    """Singleton class for handling game polls."""
-
-    def __new__(cls):
-        if not hasattr(cls, "_instance"):
-            cls._instance = super().__new__(cls)
-        return cls._instance
+    """Class for handling game polls."""
 
     def __init__(self):
         with open("config/games.txt", "r") as game_config:
