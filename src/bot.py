@@ -17,7 +17,6 @@ class NextGameBot:
         self.client = client
         self.game_poll = GamePoll()
         self.status_message: discord.Message = None
-        self.private_messages: list[discord.Message] = []
 
     async def message_handler(self, message: discord.Message) -> None:
         """
@@ -35,17 +34,24 @@ class NextGameBot:
         if message.channel.type.name == "text" and message.content.startswith(
             "!nextgame"
         ):
-            # Start a poll if one is not active and message has mentions
+            # Start a poll
             if not self.game_poll.is_active() and message.mentions:
                 print("Starting poll")
                 self.game_poll.add_participants(message.mentions)
                 await self.update_status_message(message.channel)
                 await self.message_participants()
 
-        # Handle private commands while a game poll is active
-        elif message.channel.type.name == "private" and self.game_poll.is_active():
-            # Add message to the responses if the message is from a participant
-            if message.author in self.game_poll.participants:
+        # Handle private commands
+        elif message.channel.type.name == "private":
+            # Delete private message history
+            if message.content.startswith("!clear"):
+                await self.clear_private_history(message.author)
+
+            # Add message to the responses
+            elif (
+                self.game_poll.is_active()
+                and message.author in self.game_poll.participants
+            ):
                 print(f"Response received from {message.author.name}")
                 self.game_poll.add_response(message)
                 await self.update_status_message()
@@ -70,7 +76,7 @@ class NextGameBot:
         # Send the message to all participants
         for participant in self.game_poll.participants:
             print(f"Sending choices to {participant.name}")
-            self.private_messages.append(await participant.send(message_content))
+            await participant.send(message_content)
 
     async def update_status_message(self, channel: discord.TextChannel = None) -> None:
         """
@@ -105,3 +111,18 @@ class NextGameBot:
         else:
             print("Updating status message")
             await self.status_message.edit(content=message_content)
+
+    async def clear_private_history(self, member: discord.Member) -> None:
+        """
+        Clears the private message history with the given member.
+
+        Args:
+            * member (`discord.Member`): The member to clear the private message history with.
+        """
+
+        # Iterate through the member's private message history
+        print(f"Clearing private message history for {member.name}")
+        async for message in member.dm_channel.history():
+            # Delete messages sent by the bot
+            if message.author == self.client.user:
+                await message.delete()
