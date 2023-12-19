@@ -72,25 +72,33 @@ def create_status_message(waiting_usernames: list[str], ok_usernames: list[str])
         * `str`: The formatted message containing the status of the users.
     """
 
-    ok_status = "\n".join(
-        [
-            TEMPLATES["user_status.md"].format(
-                status_emoji=TEMPLATES["emojis.json"]["ok"], username=username
+    status = ""
+
+    if ok_usernames:
+        status += (
+            "\n".join(
+                [
+                    TEMPLATES["user_status.md"].format(
+                        status_emoji=TEMPLATES["emojis.json"]["ok"], username=username
+                    )
+                    for username in ok_usernames
+                ]
             )
-            for username in ok_usernames
-        ]
-    )
-    waiting_status = "\n".join(
-        [
-            TEMPLATES["user_status.md"].format(
-                status_emoji=TEMPLATES["emojis.json"]["waiting"], username=username
-            )
-            for username in waiting_usernames
-        ]
-    )
+            + "\n"
+        )
+
+    if waiting_usernames:
+        status += "\n".join(
+            [
+                TEMPLATES["user_status.md"].format(
+                    status_emoji=TEMPLATES["emojis.json"]["waiting"], username=username
+                )
+                for username in waiting_usernames
+            ]
+        )
 
     return TEMPLATES["status.md"].format(
         user_count=len(waiting_usernames) + len(ok_usernames),
         response_count=len(ok_usernames),
-        status=f"{ok_status}\n{waiting_status}",
+        status=status,
     )
