@@ -17,7 +17,7 @@ TEMPLATES = {
 }
 
 
-def create_options_message(options: list[str]) -> str:
+def options_message(options: list[str]) -> str:
     """
     Creates a message containing the list of options.
 
@@ -35,7 +35,7 @@ def create_options_message(options: list[str]) -> str:
     )
 
 
-def create_progress_message(answer_count: int, participant_count: int) -> str:
+def progress_message(answer_count: int, participant_count: int) -> str:
     """
     Creates a message containing the progress of the poll.
 
@@ -53,7 +53,7 @@ def create_progress_message(answer_count: int, participant_count: int) -> str:
     )
 
 
-def create_confirmation_message(confirmed_options: list[str]) -> str:
+def confirmation_message(confirmed_options: list[str]) -> str:
     """
     Creates a message containing the confirmed options.
 
@@ -79,7 +79,7 @@ def create_confirmation_message(confirmed_options: list[str]) -> str:
     )
 
 
-def create_results_message(results: dict[str, float]) -> str:
+def results_message(results: dict[str, float]) -> str:
     """
     Creates a message containing the results of the poll.
 
