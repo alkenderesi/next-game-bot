@@ -35,12 +35,12 @@ def options_message(options: list[str]) -> str:
     )
 
 
-def progress_message(answer_count: int, participant_count: int) -> str:
+def progress_message(submission_count: int, participant_count: int) -> str:
     """
     Creates a message containing the progress of the poll.
 
     Args:
-        * answer_count (`int`): The number of answers received.
+        * submission_count (`int`): The number of answers received.
         * participant_count (`int`): The number of participants.
 
     Returns:
@@ -48,7 +48,7 @@ def progress_message(answer_count: int, participant_count: int) -> str:
     """
 
     return TEMPLATES["progress"].format(
-        answer_count=answer_count,
+        submission_count=submission_count,
         participant_count=participant_count,
     )
 
@@ -93,7 +93,7 @@ def results_message(results: dict[str, float]) -> str:
     return "\n".join(
         [
             TEMPLATES["result"].format(
-                score=f"{score:.2f}".rjust(5),
+                score=f"{score:.2f}".rjust(5, "0"),
                 option=option,
             )
             for option, score in sorted(

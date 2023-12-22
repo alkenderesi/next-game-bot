@@ -1,1 +1,1 @@
-Poll progress: **{answer_count} / {participant_count}**
+Poll progress: **{submission_count} / {participant_count}**
