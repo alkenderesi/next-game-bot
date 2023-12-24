@@ -8,7 +8,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
-next_game_bot = bot.NextGameBot(client)
+poll_bot = bot.PollBot(client)
 
 
 @client.event
@@ -18,7 +18,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    await next_game_bot.message_handler(message)
+    await poll_bot.message_handler(message)
 
 
 def main():
