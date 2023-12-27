@@ -1,5 +1,3 @@
-"""Main module that runs the bot."""
-
 import discord
 import bot
 
