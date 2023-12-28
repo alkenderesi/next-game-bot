@@ -1,4 +1,5 @@
 import discord
+import templates
 from poll import Poll
 
 
@@ -38,30 +39,44 @@ class PollBot:
             await self.submit(message)
 
         if self.poll.is_complete():
-            await self.main_channel.send(self.poll.result())
+            await self.main_channel.send(templates.result_message(self.poll.result()))
             self.reset()
 
     async def start(self, message: discord.Message) -> None:
         self.poll.add(message.mentions)
         self.main_channel = message.channel
 
+        poll_message = templates.poll_message(self.poll.games)
+        your_turn_message = templates.your_turn_message()
+        wait_message = templates.wait_message()
+
         for participant in self.poll.participants:
-            self.poll_dms[participant] = await participant.send("")
+            dm_channel = await participant.create_dm()
+
+            async for dm in dm_channel.history(limit=10, oldest_first=False):
+                if dm.author == self.client.user:
+                    await dm.delete()
+
+            self.poll_dms[participant] = await participant.send(poll_message)
 
             if participant == self.poll.active_participant:
-                self.turn_dms[participant] = await participant.send("")
-
+                self.turn_dms[participant] = await participant.send(your_turn_message)
             else:
-                self.turn_dms[participant] = await participant.send("")
+                self.turn_dms[participant] = await participant.send(wait_message)
 
     async def submit(self, message: discord.Message):
         last_active = self.poll.active_participant
         self.poll.submit(message.content)
 
-        await self.turn_dms[last_active].edit(content="")
-        await self.turn_dms[self.poll.active_participant].edit(content="")
+        poll_message = templates.poll_message(self.poll.games)
+        your_turn_message = templates.your_turn_message()
+        wait_message = templates.wait_message()
 
-        poll_message = ""
+        await self.turn_dms[last_active].edit(content=wait_message)
+        await self.turn_dms[self.poll.active_participant].edit(
+            content=your_turn_message
+        )
+
         for participant in self.poll.participants:
             await self.poll_dms[participant].edit(content=poll_message)
 
